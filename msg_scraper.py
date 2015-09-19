@@ -6,17 +6,27 @@ import time
 from numpy import array
 from dateutil.parser import parse
 from datetime import datetime
+from msg_alchemize import *
 
-DEFAULT_MSGS = "html/messages.htm"
+#DEFAULT_MSGS = "test_messages.htm"
+DEFAULT_MSGS = "test_messages.htm"
 DEFAULT_NAME = "Benjamin"
+
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-f', '--file', dest='messages_file', default=DEFAULT_MSGS, type=str, help='Input the file you want to parse messages from')
 	parser.add_argument('-n', '--name', dest='name', default=DEFAULT_NAME, type=str, help='Input your person of interest')
 	
 	values = parser.parse_args()
-	print values.messages_file
-	read_html(values.messages_file, values.name)
+	#print values.messages_file
+	# Dictionary indexed by timestamp
+	message_dict = read_html(values.messages_file, values.name)
+	# Updating values of dictionary to contain tuple of message content and sentiment score given by alchemy
+	for key,val in message_dict.items():
+		val = calculate_sentiments(val)
+		message_dict[key] = val
+	print message_dict
 	
 def read_html(filename, person):
 	file_data = urllib.urlopen(filename).read()
@@ -44,6 +54,7 @@ def read_html(filename, person):
 				date_to_msgs[ts] = [msgs_filtered[idx]]
 			else:
 				date_to_msgs[ts].append(msgs_filtered[idx])
+	return date_to_msgs
 	
 
 
