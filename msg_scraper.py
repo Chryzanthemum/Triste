@@ -4,6 +4,9 @@ import re
 from bs4 import BeautifulSoup
 import time 
 from numpy import array
+from dateutil.parser import parse
+from datetime import datetime
+
 DEFAULT_MSGS = "html/messages.htm"
 DEFAULT_NAME = "Benjamin"
 def main():
@@ -18,7 +21,7 @@ def main():
 def read_html(filename, person):
 	file_data = urllib.urlopen(filename).read()
 	soup = BeautifulSoup(file_data, 'html.parser')
-	
+	date_to_msgs = {}
 	for thread in soup.find_all('div', class_='thread'):
 		msgs = thread.find_all('p')
 		msgs = [m.get_text().encode("ascii", "ignore") for m in msgs]
@@ -35,9 +38,13 @@ def read_html(filename, person):
 		just_timestamps = [str(ts.find('span', class_="meta").get_text()) 
 			for ts in msg_meta if ts.find('span', class_="meta")]
 		timestamps_filtered = list(array(just_timestamps)[meta_filtered_idx])
-		print timestamps_filtered[1:10]
-		break
-
+		for idx,timestamp in enumerate(timestamps_filtered):
+			ts = parse(timestamp) # date object
+			if ts not in date_to_msgs:
+				date_to_msgs[ts] = [msgs_filtered[idx]]
+			else:
+				date_to_msgs[ts].append(msgs_filtered[idx])
+	
 
 
 if __name__ == '__main__':
