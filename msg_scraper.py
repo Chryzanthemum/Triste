@@ -7,9 +7,9 @@ from numpy import array
 from dateutil.parser import parse
 from datetime import datetime
 from msg_alchemize import *
-
+from input_to_sql import *
+DEFAULT_MSGS = "html/benmessages4.htm"
 #DEFAULT_MSGS = "test_messages.htm"
-DEFAULT_MSGS = "test_messages.htm"
 DEFAULT_NAME = "Benjamin"
 
 
@@ -26,7 +26,9 @@ def main():
 	for key,val in message_dict.items():
 		val = calculate_sentiments(val)
 		message_dict[key] = val
-	print message_dict
+	#print message_dict
+	#print con
+	messages_to_sql(message_dict)
 	
 def read_html(filename, person):
 	file_data = urllib.urlopen(filename).read()
@@ -43,7 +45,6 @@ def read_html(filename, person):
 		meta_filtered_idx = [idx for (idx,p) in enumerate(msg_meta) 
 			if (person in p.span.get_text().encode("ascii","ignore"))]
 		msgs_filtered = list(array(msgs)[meta_filtered_idx])
-
 		# also the timestamps mapping to the msgs
 		just_timestamps = [str(ts.find('span', class_="meta").get_text()) 
 			for ts in msg_meta if ts.find('span', class_="meta")]

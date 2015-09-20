@@ -6,7 +6,10 @@ def calculate_sentiments(messages):
 	responses = []
 	for message in messages:
 		response = alchemyapi.sentiment("text", message)
-		if response["docSentiment"]["type"] != "neutral":
+		print response
+		if response["status"] == "ERROR":
+			responses.append((message, 0))
+		elif response["docSentiment"]["type"] != "neutral":
 			responses.append((message, response["docSentiment"]["score"]))
 		else: 
 			responses.append((message, 0))
